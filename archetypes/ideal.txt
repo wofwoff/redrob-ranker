@@ -1,0 +1,30 @@
+# Ideal-candidate archetypes for the Senior AI Engineer (retrieval/ranking) role.
+# Blank-line separated. Written in the plain first-person voice the dataset uses,
+# so TF-IDF similarity rewards prose-buried fit, not buzzword density.
+
+Senior applied ML engineer with six years of experience, four of them building
+and shipping embeddings-based retrieval and ranking systems to real users at a
+product company. I built a hybrid dense plus BM25 retrieval pipeline serving
+recruiter search, owned the vector index refresh and embedding drift, and drove
+offline NDCG and MRR evaluation tied to online A/B tests.
+
+I built a recommendation and search system at a consumer-internet product
+company. My work covered candidate retrieval with FAISS and a learning-to-rank
+re-ranker, relevance evaluation with NDCG and MAP, and shipping the model to
+production with latency and throughput constraints. Strong Python, comfortable
+owning the whole pipeline from data to serving.
+
+Applied scientist who shipped a semantic search feature backed by sentence
+transformer embeddings and a Pinecone vector database. I designed the offline
+evaluation harness, correlated it with online engagement, fine-tuned encoders
+with LoRA, and iterated fast on a scrappy first version before optimizing.
+
+Machine learning engineer focused on information retrieval and ranking at scale.
+Deployed dense retrieval and hybrid search, tuned re-ranking models, and built
+the recommendation infrastructure that decides what users see. I care about
+retrieval quality regression, index freshness, and rigorous ranking evaluation.
+
+Product-minded ML engineer: I would rather ship a working ranker in a week and
+learn from real recruiter behavior than perfect an offline metric. Built vector
+search and matching systems, ran experiments, and owned the retrieval and
+ranking layer of the product end to end.

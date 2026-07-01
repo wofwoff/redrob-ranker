@@ -1,0 +1,28 @@
+# Anti-pattern archetypes: profiles that look plausible but the JD explicitly
+# does not want. Similarity to these pushes a candidate DOWN.
+
+My professional background is in marketing and content. Lately I have been
+curious about how AI tools could augment my work and I have experimented with
+ChatGPT and a few other tools for productivity and content creation. Open to
+roles in the AI space. My skills list includes many trending AI keywords.
+
+Pure research profile. I spent my career in academic labs and research-only
+roles publishing papers. I have deep theoretical knowledge but no production
+deployment, no shipping to real users, and no product-company experience.
+
+My AI experience is recent and consists mostly of LangChain tutorials wiring up
+calls to OpenAI over the last few months. I build demos with the latest hot
+framework and write blog posts about them, but I have little pre-LLM machine
+learning or production systems experience.
+
+I have spent my entire career at large IT services and consulting firms doing
+staffing-style project delivery for clients. I have not worked at a product
+company and have not owned a system end to end for my own users.
+
+Computer vision and speech specialist. My work is object detection, image
+classification, YOLO, OpenCV, and speech recognition. I have no natural language
+processing, information retrieval, ranking, or search experience.
+
+Senior architect and tech lead. I have not written production code in years; I
+review designs, run ceremonies, and manage delivery. My title has climbed as I
+changed companies every year and a half.
