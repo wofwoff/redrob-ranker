@@ -1,0 +1,24 @@
+# Data bundle -- never commit the 465 MB pool (reference it via --candidates).
+data/
+*.jsonl
+*.jsonl.gz
+
+# Precomputed artifacts (regenerate via precompute_embeddings.py; see README).
+# The candidate embedding matrix is ~154 MB and exceeds GitHub's 100 MB limit.
+artifacts/*.npy
+artifacts/*.npz
+
+# Submission output
+submission.csv
+*_submission_out.csv
+
+# Source doc bundle (docx originals live outside the repo)
+*.docx
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+.DS_Store

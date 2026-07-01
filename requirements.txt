@@ -1,0 +1,14 @@
+# Ranking step (rank.py) dependencies -- pure CPU, no network, no GPU.
+# These four are all that the ≤5-min ranking step needs.
+numpy>=1.24
+scipy>=1.10
+pandas>=2.0
+PyYAML>=6.0
+
+# --- Optional booster only (NOT used by the default ranking step) ----------
+# The semantic component defaults to a self-contained TF-IDF classifier so the
+# ranking step reproduces with zero downloads. To use precomputed transformer
+# embeddings instead, install the following and run precompute_embeddings.py
+# OFFLINE (allowed to exceed the 5-min window), then pass --embeddings to rank.py.
+# sentence-transformers>=2.2
+# torch>=2.0
