@@ -1,0 +1,76 @@
+# Redrob Hackathon — Submission Metadata
+# Mirrors the portal metadata (Stage-3 review cross-checks this file).
+# TODO: fill in the <...> team-identity fields before submitting.
+
+team_name: "<your-team-name>"
+
+primary_contact:
+  name: "<Full Name>"
+  email: "<primary@example.com>"
+  phone: "<+91-XXXXXXXXXX>"
+
+team_members:
+  - name: "<Full Name>"
+    email: "<email@example.com>"
+    role: "ML Engineer"
+
+# ============================================================================
+# Code and reproducibility
+# ============================================================================
+github_repo: "<https://github.com/USERNAME/redrob-ranker>"
+sandbox_link: "<https://huggingface.co/spaces/USERNAME/redrob-ranker>"
+reproduce_command: "python rank.py --candidates ./candidates.jsonl --out ./submission.csv"
+
+# ============================================================================
+# Compute environment
+# ============================================================================
+compute:
+  platform: "MacBook Pro (Apple Silicon)"
+  cpu_cores: 8
+  ram_gb: 16
+  python_version: "3.13"
+  os: "macOS"
+  uses_gpu_for_inference: false          # ranking step is pure NumPy/SciPy on CPU
+  has_network_during_ranking: false      # no API calls, no model download at rank time
+  pre_computation_required: false        # default path is TF-IDF; embeddings booster is optional
+  pre_computation_time_minutes: 0
+
+# ============================================================================
+# AI tools declaration (transparency only; honest)
+# ============================================================================
+ai_tools_used:
+  - "Claude"
+
+ai_usage_summary: |
+  Used Claude (Claude Code) for architecture discussion, code review, and to help
+  author the deterministic reasoning composer and lexicon taxonomy. All scoring
+  logic is deterministic Python; no LLM is called at ranking time (the ranking
+  step has no network access). No candidate data was sent to any hosted LLM as
+  part of the ranking pipeline.
+
+# ============================================================================
+# Approach summary (<=200 words)
+# ============================================================================
+methodology_summary: |
+  Hybrid retrieval -> feature-scoring -> re-ranking. The score is multiplicative:
+  base_fit x disqualifier x geo_fit x availability x consistency, so a candidate
+  must clear every gate. base_fit blends role/title relevance (the decisive signal
+  against keyword-stuffer traps), a zero-label TF-IDF archetype classifier for
+  prose-buried fit, must-have evidence read from real career descriptions and
+  corroborated by skills + assessment scores, real applied-ML years from career
+  history, and education/validation. Disqualifiers encode the JD's explicit
+  knockdowns (consultancy-only, pure research, LangChain-only, title-chasing,
+  stopped-coding, CV/speech-primary). A two-tier consistency check zeroes
+  hard-impossible honeypot profiles. Lexicons are data-grounded on the closed pool
+  (63 companies, 48 titles, 133 skills). Pure NumPy/SciPy: ~90s / ~1.4GB on the
+  full 100K pool, CPU-only, no network. Honeypot rate in top 100: 0.
+
+# ============================================================================
+# Declarations
+# ============================================================================
+declarations:
+  read_submission_spec: true
+  code_is_original_work: true
+  no_collusion: true
+  honeypot_check_done: true              # eval/honeypot_selftest.py: 0 in top 100
+  reproduction_tested: true              # validated with the bundled validate_submission.py
