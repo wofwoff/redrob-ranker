@@ -1,12 +1,20 @@
 """Two-tier consistency (design sec 3e).
 
 Tier A -- hard-impossible contradictions -> killswitch (factor 0). Logically
-un-fakeable; a single one zeroes the candidate. These are the honeypot markers
-we *can* detect internally. (The pool has no company founding dates -- 63
-company names reused ~31K times each -- so the "8 years at a company founded 3
-years ago" honeypot archetype has no internal footprint and is handled by the
-fit model pushing keyword-stuffers down, not by a check here. See
-eval/honeypot_selftest.py, which asserts these checks actually fire.)
+un-fakeable; a single one zeroes the candidate. Two sources:
+
+* *Internal* contradictions (dates, durations, proficiency-vs-usage) -- these
+  fire on ~43/100K candidates.
+* *World-knowledge* contradictions: a role starting years before the employer
+  was founded (lexicons.COMPANY_FOUNDED_YEAR). This is the spec's first
+  honeypot archetype ("8 years at a company founded 3 years ago") -- internally
+  coherent, so only checkable against public founding years. The generator's
+  noise band extends ~1-2y pre-founding, so >= 3 years is the hard threshold
+  (audit: the honeypots found in our own top-100 sat at 5y and 3y violations,
+  wrapped in suspiciously perfect profiles); exactly 2y is a Tier-B soft
+  anomaly; 1y is ignored as noise/stealth-mode slack.
+
+See eval/honeypot_selftest.py, which asserts all of these actually fire.
 
 Tier B -- soft anomalies -> penalty multiplier, never fatal. Split into
 generator-noise (very mild) and quality-relevant (heavier) bands.
@@ -16,11 +24,25 @@ from __future__ import annotations
 
 from typing import Any, Dict, List
 
+from .. import lexicons as lex
 from ..loader import career, parse_date, profile, signals
 
 # Margins chosen from the data audit: hard flags fire on ~45/100K candidates.
 _SPAN_TOLERANCE_MONTHS = 3.0      # duration_months over date-span slack
 _SUM_TOLERANCE_MONTHS = 18.0      # summed tenure over yoe*12 slack (allows overlap)
+_FOUNDING_HARD_YEARS = 3          # start >= 3y before founding -> killswitch
+_FOUNDING_SOFT_YEARS = 2          # exactly 2y before founding -> soft anomaly
+
+
+def _founding_violation_years(c: Dict[str, Any]) -> int:
+    """Worst 'started N years before the company existed' across all roles."""
+    worst = 0
+    for r in career(c):
+        fy = lex.COMPANY_FOUNDED_YEAR.get(r.get("company", ""))
+        sd = parse_date(r.get("start_date"))
+        if fy and sd and sd.year < fy:
+            worst = max(worst, fy - sd.year)
+    return worst
 
 
 def _hard_flags(c: Dict[str, Any]) -> List[str]:
@@ -43,6 +65,9 @@ def _hard_flags(c: Dict[str, Any]) -> List[str]:
         if s.get("proficiency") in ("advanced", "expert") \
                 and (s.get("duration_months", None) == 0):
             flags.append(f"'{s.get('name')}' claimed {s.get('proficiency')} with 0 months used")
+    fv = _founding_violation_years(c)
+    if fv >= _FOUNDING_HARD_YEARS:
+        flags.append(f"role starts {fv} years before the employer was founded")
     # de-dup while preserving order
     seen, out = set(), []
     for f in flags:
@@ -67,6 +92,10 @@ def _soft(c: Dict[str, Any]):
 
     # quality-relevant band (~0.85 each, product floored at 0.6).
     q = 1.0
+    fv = _founding_violation_years(c)
+    if _FOUNDING_SOFT_YEARS <= fv < _FOUNDING_HARD_YEARS:
+        q *= 0.85
+        soft.append(f"role starts {fv} years before the employer was founded")
     assess = sig.get("skill_assessment_scores", {}) or {}
     for s in c.get("skills", []) or []:
         dur = s.get("duration_months", 0) or 0

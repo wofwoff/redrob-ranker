@@ -45,7 +45,12 @@ final_score = base_fit                     # weighted blend, title does the heav
 - **experience** — real applied-ML years derived from career history, not the raw
   `years_of_experience` field.
 - **consistency** — two tiers: hard-impossible contradictions are a killswitch
-  (score 0); soft anomalies are mild penalties.
+  (score 0); soft anomalies are mild penalties. Killswitch checks are both
+  *internal* (dates, durations, proficiency-vs-usage) and *world-knowledge*: a
+  role starting ≥3 years before the employer's public founding year
+  (`lexicons.COMPANY_FOUNDED_YEAR`) — the spec's "8 years at a company founded
+  3 years ago" honeypot archetype, which is internally coherent and only
+  catchable against real-world founding dates.
 
 All lexicons in `redrob/lexicons.py` are **data-grounded**: the pool is a closed
 world (63 companies, 48 titles, 24 industries, 133 skills), enumerated and

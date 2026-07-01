@@ -106,6 +106,22 @@ def test_consistency_killswitch_zeroes_impossible():
     assert out["consistency_factor"] == 0.0 and out["hard_flags"]
 
 
+def test_founding_year_killswitch():
+    """A role starting >= 3y before the employer's public founding year is the
+    spec's first honeypot archetype -> killswitch. 1y slack is noise -> clean."""
+    hp = _mk("CAND_0000010", "Search Engineer", "Sarvam AI", industry="AI/ML")
+    hp["career_history"][0]["start_date"] = "2018-09-01"   # Sarvam AI founded ~2023
+    out = consistency.score(hp)
+    assert out["consistency_factor"] == 0.0
+    assert any("before the employer was founded" in f for f in out["hard_flags"])
+
+    mild = _mk("CAND_0000011", "ML Engineer", "Krutrim", industry="AI/ML")
+    mild["career_history"][0]["start_date"] = "2022-06-01"  # 1y slack: noise band
+    mild["career_history"][0]["duration_months"] = 31       # keep span-consistent
+    out = consistency.score(mild)
+    assert out["consistency_factor"] > 0.0 and not out["hard_flags"]
+
+
 def test_geo_cap_removes_non_relocating_overseas():
     overseas = geo_fit.score(_mk("CAND_0000004", "ML Engineer", "Swiggy",
                                  country="USA", willing_to_relocate=False))

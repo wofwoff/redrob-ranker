@@ -59,19 +59,35 @@ def assert_checks_fire_on_constructed_honeypots():
     c = _profile(skills=[{"name": "FAISS", "proficiency": "expert", "duration_months": 0}])
     assert any("0 months used" in f for f in _hard_flags(c)), "expert+0mo not caught"
 
-    # negative control: a clean profile fires nothing
+    # 5) role starting years before the employer was founded (the spec's FIRST
+    #    honeypot example: "8 years at a company founded 3 years ago").
+    #    Sarvam AI was founded ~2023; a 2018 start is a 5-year impossibility.
+    c = _profile(career_history=[{
+        "company": "Sarvam AI", "start_date": "2018-09-01",
+        "end_date": "2024-01-01", "duration_months": 64}])
+    assert any("before the employer was founded" in f for f in _hard_flags(c)), \
+        "founding-year violation not caught"
+
+    # negative controls: clean profiles fire nothing
     clean = _profile(
         career_history=[{"start_date": "2019-01-01", "end_date": "2024-01-01",
                          "duration_months": 60}],
         skills=[{"name": "PyTorch", "proficiency": "advanced", "duration_months": 40}])
     assert _hard_flags(clean) == [], "clean profile falsely flagged"
-    print("[selftest] Tier-A checks fire on all 4 constructed honeypots; clean profile passes.")
+    # 1y pre-founding is generator noise / stealth-mode slack -- must NOT hard-flag
+    mild = _profile(career_history=[{
+        "company": "Krutrim", "start_date": "2022-06-01",
+        "end_date": "2024-01-01", "duration_months": 19}])
+    assert _hard_flags(mild) == [], "1y founding slack falsely hard-flagged"
+    print("[selftest] Tier-A checks fire on all 5 constructed honeypots; "
+          "clean + mild-slack profiles pass.")
 
 
 def assert_no_company_founding_field(sample_path: str):
-    """Document the undetectable archetype: the pool has no company founding
-    date, so 'N years at a company founded M<N years ago' has no internal
-    footprint. Confirm no such field exists (else we'd add a check for it)."""
+    """The pool carries no founding-date field, which is exactly why the
+    founding-year check uses WORLD KNOWLEDGE (lexicons.COMPANY_FOUNDED_YEAR for
+    the real companies in the pool) rather than a data field. If the data ever
+    grows such a field, prefer it over the lexicon."""
     with open(sample_path) as f:
         c = json.loads(next(l for l in f if l.strip()))
     forbidden = {"founded", "founding_date", "company_founded", "company_age"}
@@ -79,9 +95,9 @@ def assert_no_company_founding_field(sample_path: str):
     for role in c.get("career_history", []):
         present |= (set(role.keys()) & forbidden)
     present |= (set(c.get("profile", {}).keys()) & forbidden)
-    assert not present, f"unexpected founding field(s) found: {present} -- add a check!"
-    print("[selftest] confirmed: no company-founding field in the schema (archetype "
-          "handled by the fit model pushing keyword-stuffers down, not a check).")
+    assert not present, f"founding field(s) now in schema: {present} -- use them!"
+    print("[selftest] confirmed: no company-founding field in the schema "
+          "(check is grounded in public founding years via lexicons).")
 
 
 def report_pool_and_submission(candidates_path: str, submission_path: str | None):

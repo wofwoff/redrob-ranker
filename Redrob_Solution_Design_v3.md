@@ -227,24 +227,28 @@ but real credibility/competence dents.
   *also* applies as a steeper per-skill discount inside §3a (must-have evidence), so a claimed
   expert skill the candidate scores poorly on counts for little toward fit.
 
-> Company founding dates are **not** provided and cannot be reconstructed (only 63 distinct
-> company names exist, each reused thousands of times, so any "company age" proxy is a constant
-> artifact). There is therefore **no company-age check**; the "tenure longer than the company
-> could have existed" idea is captured by the internal date-span check in Tier A.
-
-> **Verify this assumption before trusting it — honeypot rate >10% in top 100 is a hard Stage-3
-> disqualification.** The submission spec's *first* named honeypot example is "8 years of
-> experience at a company founded 3 years ago." That impossibility is only visible relative to a
-> company founding date; a profile with `start_date` 8 yrs ago / `end_date` now / `duration ≈ 96`
-> is **internally consistent** and would pass every Tier-A check above. The claim that this
-> archetype cannot be seeded (because founding dates aren't per-company encodable) rests on the
-> unverified "63 company names" fact. So the calibration audit (§6) is not enough on its own:
-> write an explicit **honeypot self-test** that (a) confirms `sample_candidates.json` carries no
-> company-founding field, and (b) confirms the Tier-A checks actually **fire on** the seeded
-> honeypots — not merely that your top-100 looks clean. If a honeypot archetype survives every
-> check, add a targeted check for its internal footprint (e.g. `expert`/`advanced` skill with
-> `duration_months == 0`, which the spec's second example — "expert in 10 skills with 0 years
-> used" — is already covered by Tier A).
+> **Company-age check — via world knowledge, not the data.** The pool carries no founding-date
+> field, and founding dates cannot be *inferred* from the data (only 63 distinct company names,
+> each reused thousands of times). An earlier revision of this doc concluded the spec's *first*
+> honeypot example — "8 years of experience at a company founded 3 years ago" — was therefore
+> undetectable. **The full-pool audit disproved that:** 55 of the 63 companies are real companies
+> with *public* founding years (Sarvam AI ≈ 2023, Krutrim ≈ 2023, CRED 2018, …). Encoding those
+> in `lexicons.COMPANY_FOUNDED_YEAR` makes the archetype checkable: a role cannot start years
+> before the employer existed, even though the profile is internally coherent.
+>
+> Empirics that set the thresholds: 93 candidates have roles starting ≥2 yrs pre-founding; the
+> generator's noise band extends ~1–2 yrs pre-founding (23/64 Krutrim roles start before 2022),
+> and the extreme violators found in our own pre-fix top-100 (ranks 5–6, at **5 yrs** each) were
+> wrapped in suspiciously perfect profiles — `saved_by_recruiters` 43 and 27 vs pool mean 7.7.
+> So: **≥3 yrs pre-founding → Tier-A killswitch; exactly 2 yrs → Tier-B soft anomaly; 1 yr →
+> ignored (noise/stealth-mode slack).** The demotion is positive-expected-value even if a flagged
+> profile were innocent noise: replacements at the top-100 boundary are near-identical in quality,
+> while a honeypot at rank 5–6 costs ≈0.08 composite (NDCG@10 1.00 → 0.836).
+>
+> The **honeypot self-test** (`eval/honeypot_selftest.py`) asserts all Tier-A checks — internal
+> *and* founding-year — actually **fire on** constructed honeypots (not merely that the top-100
+> looks clean), keeps negative controls for the noise band, and confirms the schema still has no
+> founding field (if one ever appears, prefer it over the lexicon).
 
 ### 3f. Zero-label semantic classifier (powers 3a's "career semantic match")
 

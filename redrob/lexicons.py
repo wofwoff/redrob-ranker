@@ -51,6 +51,35 @@ GENERIC_COMPANIES = {
     "Stark Industries", "Wayne Enterprises", "Dunder Mifflin",
 }
 
+# Public founding years for the real companies in the pool (world knowledge,
+# not inferred from the data). This is what makes the spec's FIRST honeypot
+# archetype -- "8 years of experience at a company founded 3 years ago" --
+# detectable: the dates are internally coherent, but a role cannot start years
+# before the employer existed. Empirically the generator's noise band extends
+# ~1-2 years pre-founding (stealth mode / rebrands also justify slack), so
+# consistency.py only treats violations of >= 3 years as hard-impossible and
+# 2 years as a soft anomaly; 1-year violations are ignored.
+# Fictional companies and the big consultancies/tech giants (all founded
+# decades before any plausible career start) are deliberately absent.
+COMPANY_FOUNDED_YEAR = {
+    "Krutrim": 2023, "Sarvam AI": 2023,
+    "Rephrase.ai": 2019, "Glance": 2019,
+    "CRED": 2018,
+    "Observe.AI": 2017, "Saarthi.ai": 2017,
+    "Yellow.ai": 2016, "Niramai": 2016, "Verloop.io": 2016,
+    "Wysa": 2015, "Locobuzz": 2015, "Meesho": 2015, "PhonePe": 2015,
+    "PharmEasy": 2015, "Unacademy": 2015, "upGrad": 2015,
+    "Razorpay": 2014, "Swiggy": 2014,
+    "Haptik": 2013, "Mad Street Den": 2013,
+    "Nykaa": 2012,
+    "Vedantu": 2011, "BYJU'S": 2011,
+    "Freshworks": 2010, "Ola": 2010, "Paytm": 2010,
+    "Dream11": 2008, "Zomato": 2008, "PolicyBazaar": 2008,
+    "InMobi": 2007, "Flipkart": 2007,
+    "Aganitha": 2005,
+    "Zoho": 1996,
+}
+
 # --------------------------------------------------------------------------- #
 # Job titles (48 distinct)
 # --------------------------------------------------------------------------- #
