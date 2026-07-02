@@ -3,8 +3,7 @@ data/
 *.jsonl
 *.jsonl.gz
 
-# Precomputed artifacts (regenerate via precompute_embeddings.py; see README).
-# The candidate embedding matrix is ~154 MB and exceeds GitHub's 100 MB limit.
+# Precomputed artifacts (not used by the default TF-IDF ranking path).
 artifacts/*.npy
 artifacts/*.npz
 

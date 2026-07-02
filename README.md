@@ -71,8 +71,23 @@ redrob/
   features/                # role_match, must_have, experience, education,
                            # disqualifiers, geo_fit, availability, consistency, semantic
 archetypes/                # ideal.txt / anti_pattern.txt (zero-label classifier)
+eval/
+  offline_metrics.py       # NDCG@10/@50, MAP, P@10 = the exact composite
+  make_gold.py             # programmatic weak-gold labeler
+  ablation.py              # component on/off study
+  honeypot_selftest.py     # asserts Tier-A checks fire; top-100 honeypot gate
+tests/test_pipeline.py     # 14 unit tests: spec-conformance, title gate, killswitch, geo, reasoning
 ```
 
+## Validate the approach
+
+```bash
+# Correctness tests
+python tests/test_pipeline.py
+
+# Prove the honeypot killswitch fires and the top-100 is clean (Stage-3 gate)
+python eval/honeypot_selftest.py --candidates ./candidates.jsonl --submission team_letsdothis.csv
+```
 
 ## Google Colab Sandbox
 

@@ -1,13 +1,5 @@
 # Ranking step (rank.py) dependencies -- pure CPU, no network, no GPU.
-# These two are all that the ≤5-min ranking step imports (numpy + scipy.sparse
+# These two are all that the <=5-min ranking step imports (numpy + scipy.sparse
 # for the self-contained TF-IDF). No pandas, no sklearn, no model weights.
 numpy>=1.24
 scipy>=1.10
-
-# --- Optional booster only (NOT used by the default ranking step) ----------
-# The semantic component defaults to a self-contained TF-IDF classifier so the
-# ranking step reproduces with zero downloads. To use precomputed transformer
-# embeddings instead, install the following and run precompute_embeddings.py
-# OFFLINE (allowed to exceed the 5-min window), then pass --embeddings to rank.py.
-# sentence-transformers>=2.2
-# torch>=2.0
