@@ -115,6 +115,10 @@ Single reproduce command: `python rank.py --candidates ./candidates.jsonl --out 
 - **Git history matters for Stage 4 review**: commit incrementally with visible iteration: a flat
   single-dump history is explicitly flagged by the evaluators. Commit as features/stages land, not
   as one final dump.
+- **Keep [SOLUTION_ARCHITECTURE.md](SOLUTION_ARCHITECTURE.md) current**: it is the plain-language
+  living doc. Every architectural change appends a dated entry to its Iteration log (what changed,
+  why, effect) and refreshes the results snapshot. It complements the dense design doc and README,
+  not replaces them.
 - **Validate before every submission**: run `validate_submission.py` on the output CSV, and
   separately confirm every `candidate_id` exists in `candidates.jsonl` (the bundled validator
   checks ID *format* but not pool *membership*).

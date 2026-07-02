@@ -13,10 +13,11 @@ from __future__ import annotations
 from typing import Any, Dict
 
 from . import role_match
+from ..description_tiers import tier_for
 from ..loader import career, profile
 from ..text import word_matcher
 
-# ML-relevance weight per title category for accumulating applied-ML months.
+# ML-relevance weight per title category (fallback for off-vocabulary roles).
 _ML_WEIGHT = {
     "strong_ml": 1.00,
     "research": 0.70,
@@ -26,6 +27,11 @@ _ML_WEIGHT = {
     "non_tech": 0.02,
     "unknown": 0.10,
 }
+# ML-relevance weight per description tier (primary): a role's templated
+# description measures how much of the work was actually applied ML, far more
+# precisely than the title (a 'Data Scientist' on a tier-2 churn template counts
+# less than one on a tier-5 ranking template).
+_TIER_WEIGHT = {5: 1.00, 4: 1.00, 3: 0.90, 2: 0.60, 1: 0.25, 0: 0.02}
 _ML_PROSE = word_matcher([
     "machine learning", "ml", "model", "models", "embedding", "embeddings",
     "retrieval", "ranking", "recommendation", "recommender", "nlp",
@@ -33,15 +39,24 @@ _ML_PROSE = word_matcher([
 ])
 
 
+def _role_ml_weight(r: Dict[str, Any]) -> float:
+    """How much of this role's months count as applied ML. Primary: description
+    tier; fallback: title category (+ prose boost) for off-vocabulary text."""
+    t = tier_for(r.get("description", "") or "")
+    if t is not None:
+        return _TIER_WEIGHT[t]
+    cat = role_match.title_category(r.get("title", ""))
+    w = _ML_WEIGHT[cat]
+    if cat in ("adjacent", "weak_tech", "unknown"):
+        if _ML_PROSE.search((r.get("description", "") or "").lower()):
+            w = max(w, 0.60)
+    return w
+
+
 def _applied_months(c: Dict[str, Any]) -> float:
     total = 0.0
     for r in career(c):
-        cat = role_match.title_category(r.get("title", ""))
-        w = _ML_WEIGHT[cat]
-        if cat in ("adjacent", "weak_tech", "unknown"):
-            desc = (r.get("description", "") or "").lower()
-            if _ML_PROSE.search(desc):
-                w = max(w, 0.60)  # ML work evidenced in the prose of a data/SWE role
+        w = _role_ml_weight(r)
         pf = role_match.company_factor(
             r.get("company", ""), r.get("company_size", ""), r.get("industry", ""))
         total += (r.get("duration_months", 0) or 0) * w * (0.6 + 0.4 * pf)

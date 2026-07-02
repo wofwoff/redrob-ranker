@@ -40,8 +40,12 @@ final_score = base_fit                     # weighted blend, title does the heav
   `sim(candidate, ideal) − sim(candidate, anti)` over `archetypes/*.txt`. Catches
   prose-buried fit ("built a recommendation system") without training labels.
 - **must_have** — the JD's non-negotiables (embeddings retrieval, vector DB,
-  ranking eval) read from **real career-role descriptions first**, corroborated by
-  the skills list (endorsement/duration trust-weighting) and Redrob assessment scores.
+  ranking eval), scored **primarily from the description-template tier**
+  (`redrob/description_tiers.py`): the pool's career descriptions are 44 hand-tiered
+  templates (0 = non-technical … 5 = elite retrieval/ranking at scale), so a role's
+  description is a near-ground-truth JD-relevance signal. Corroborated by the skills
+  list (endorsement/duration trust-weighting) and assessment scores; keyword matching
+  is the fallback for off-vocabulary text.
 - **experience** — real applied-ML years derived from career history, not the raw
   `years_of_experience` field.
 - **consistency** — two tiers: hard-impossible contradictions are a killswitch

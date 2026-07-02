@@ -16,7 +16,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from redrob import scorer                                   # noqa: E402
 from redrob.features import (consistency, disqualifiers, geo_fit,  # noqa: E402
-                             role_match)
+                             must_have, role_match)
 from redrob.reasoning import compose                        # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -96,6 +96,39 @@ def test_title_gate_crushes_keyword_stuffer():
     by = {r["candidate_id"]: r for r in recs}
     assert by["CAND_0000002"]["final_score"] > 3 * by["CAND_0000001"]["final_score"], \
         "title gate failed to separate stuffer from real ML engineer"
+
+
+def test_description_tier_separates_elite_from_generic():
+    """Two identical strong-ML candidates differing only in description tier:
+    the tier-5 role must beat the tier-2 role on must_have and final rank."""
+    from redrob import description_tiers as dt
+    tier5 = next(d for d, t in dt.DESCRIPTION_TIER.items() if t == 5)
+    tier2 = next(d for d, t in dt.DESCRIPTION_TIER.items() if t == 2)
+    elite = _mk("CAND_0000020", "ML Engineer", "Swiggy", industry="Food Delivery")
+    elite["career_history"][0]["description"] = tier5
+    generic = _mk("CAND_0000021", "ML Engineer", "Swiggy", industry="Food Delivery")
+    generic["career_history"][0]["description"] = tier2
+
+    e = must_have.score(elite)["must_have_score"]
+    g = must_have.score(generic)["must_have_score"]
+    assert e > g + 0.15, f"tier-5 ({e}) should clearly beat tier-2 ({g})"
+
+    recs = scorer.score_pool([elite, generic], *_arch())
+    by = {r["candidate_id"]: r for r in recs}
+    assert by["CAND_0000020"]["final_score"] > by["CAND_0000021"]["final_score"]
+
+
+def test_description_tier_fallback_on_unknown_text():
+    """Off-vocabulary descriptions must not crash and must fall back to keyword
+    evidence (graceful degradation on unseen data)."""
+    from redrob.description_tiers import tier_for
+    assert tier_for("a totally novel description not in the pool") is None
+    c = _mk("CAND_0000022", "ML Engineer", "Swiggy")
+    c["career_history"][0]["description"] = \
+        "Built a production ranking and retrieval system with embeddings."
+    out = must_have.score(c)
+    assert 0.0 <= out["must_have_score"] <= 1.0
+    assert out["must_have_score"] > 0.2  # keyword fallback still credits real work
 
 
 def test_consistency_killswitch_zeroes_impossible():
