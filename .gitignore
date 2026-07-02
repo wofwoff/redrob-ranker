@@ -25,3 +25,6 @@ venv/
 
 # Claude Code guidance (local only, not part of the submission)
 CLAUDE.md
+
+# HuggingFace Space (deployed separately; keeps submission repo deps clean)
+hf_space/
