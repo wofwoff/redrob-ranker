@@ -62,7 +62,6 @@ classified explicitly rather than fuzzy-matched.
 
 ```
 rank.py                    # the ≤5-min ranking step → submission.csv
-precompute_embeddings.py   # OPTIONAL offline booster (transformer embeddings)
 redrob/
   lexicons.py              # data-grounded company/title/industry/skill taxonomy
   loader.py                # streaming JSONL loader + safe accessors
@@ -74,20 +73,6 @@ redrob/
 archetypes/                # ideal.txt / anti_pattern.txt (zero-label classifier)
 ```
 
-## Optional: transformer-embedding booster
-
-The default semantic component is TF-IDF (zero external deps, fully reproducible).
-To use `BAAI/bge-small-en-v1.5` embeddings instead — an **offline** step, allowed
-to exceed the 5-min window and to download the model once:
-
-```bash
-pip install sentence-transformers torch
-python precompute_embeddings.py --candidates ./candidates.jsonl --out artifacts/embeddings.npz
-python rank.py --candidates ./candidates.jsonl --out ./submission.csv --embeddings artifacts/embeddings.npz
-```
-
-`rank.py` still never touches the network; it only *reads* the precomputed
-artifact. The artifact (~154 MB) is git-ignored — regenerate it or use Git LFS.
 
 ## Google Colab Sandbox
 

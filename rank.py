@@ -5,10 +5,6 @@ Pure NumPy/SciPy. No GPU, no network, no hosted-LLM calls. Runs well inside the
 5 min / 16 GB / CPU-only budget on the full 100K pool.
 
     python rank.py --candidates ./candidates.jsonl --out ./submission.csv
-
-Optional booster: if a precomputed sentence-transformer artifact is passed via
---embeddings, the semantic component uses it; otherwise the self-contained
-TF-IDF archetype classifier is used (fully reproducible, zero external deps).
 """
 
 from __future__ import annotations

@@ -2,8 +2,7 @@
 
 Deliberately dependency-light: no scikit-learn, no transformer, no network. This
 is what makes the semantic component reproducible inside the Stage-3 sandbox with
-zero external calls. A transformer backend is available as an optional booster
-(see precompute_embeddings.py); when its artifact is absent we fall back to this.
+zero external calls.
 
 Unigrams + bigrams, sublinear TF, smoothed IDF, L2-normalized rows -- enough to
 catch prose-buried fit ("built a recommendation system", "vector search") that a

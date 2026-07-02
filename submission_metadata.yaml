@@ -34,7 +34,7 @@ compute:
   os: "macOS"
   uses_gpu_for_inference: false          # ranking step is pure NumPy/SciPy on CPU
   has_network_during_ranking: false      # no API calls, no model download at rank time
-  pre_computation_required: false        # default path is TF-IDF; embeddings booster is optional
+  pre_computation_required: false        # no pre-computation is needed (runs TF-IDF directly)
   pre_computation_time_minutes: 0
 
 # ============================================================================
