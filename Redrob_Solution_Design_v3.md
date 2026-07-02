@@ -147,7 +147,11 @@ Each is a computable feature and a citable sentence for the reasoning column:
 - **Title-chaser:** job-hop cadence ~1.5 yr with ascending titles — computable from
   `career_history` durations + title sequence.
 - **Stopped coding** (architecture/tech-lead only) for 18+ months — use `is_current` title +
-  recent descriptions.
+  recent descriptions. **Hands-on ML titles (Lead AI Engineer, Staff MLE) are exempt**: the JD
+  targets people who *left* engineering for architecture roles, and the audit found a
+  referee-tier-5 "Lead AI Engineer @ Sarvam AI" buried by this flag purely because his
+  description used outcome language ("owned the search experience end-to-end") instead of
+  coding verbs.
 - **CV / speech / robotics** primary expertise without NLP/IR.
 - **Closed-source-only 5+ years without external validation** — fire only on explicit career
   evidence (long tenure entirely at proprietary employers), with certifications as a positive
@@ -193,6 +197,14 @@ Combine into a single 0.3–1.0 multiplier:
   the first 30 days). Do **not** treat 30–90 as flat/free.
 
 Cap hard, don't zero — availability is a modifier, not a disqualifier.
+
+> **Calibration (validated by A/B against an independent referee rubric):** the raw blend is
+> **sqrt-compressed** before use. The JD's mandate targets extremes ("hasn't logged in for 6
+> months, 5% response rate"), not micro-differences among reachable candidates — uncompressed,
+> a 0.85-vs-1.0 availability gap outweighed a full fit-tier difference at the top-10 margin.
+> Compression halved the normal-band spread (P@10 against the referee rubric went 0.90 → 1.00)
+> while leaving true ghosts fatally capped. A parallel A/B on softening Tier-B consistency
+> (0.85 → 0.93) showed **no gain** on either pseudo-truth and was rejected — the 0.85 stands.
 
 ### 3e. `consistency_factor` — two tiers
 

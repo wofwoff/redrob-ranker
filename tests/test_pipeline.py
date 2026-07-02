@@ -141,6 +141,26 @@ def test_consultancy_only_disqualifier_fires():
     assert out["disqualifier_mult"] < 0.5 and out["disqualifier_reasons"]
 
 
+def test_stopped_coding_exempts_hands_on_ml_titles():
+    """'Lead AI Engineer' / 'Staff MLE' are IC-leadership ML titles, not the
+    JD's left-engineering-for-architecture archetype -- must NOT be flagged
+    even when the description uses outcome language without coding verbs."""
+    c = _mk("CAND_0000012", "Lead AI Engineer", "Sarvam AI", industry="AI/ML")
+    c["career_history"][0]["description"] = \
+        "Owned the search and discovery experience end-to-end, from data " \
+        "infrastructure through ranking algorithms to evaluation."
+    out = disqualifiers.score(c)
+    assert not any("non-coding leadership" in r for r in out["disqualifier_reasons"])
+
+    # but a generic Project Manager in the same situation IS flagged
+    pm = _mk("CAND_0000013", "Engineering Manager", "Swiggy")
+    pm["career_history"][0]["title"] = "Engineering Manager"
+    pm["career_history"][0]["description"] = \
+        "Ran ceremonies, managed delivery timelines, and reviewed designs."
+    out = disqualifiers.score(pm)
+    assert any("non-coding leadership" in r for r in out["disqualifier_reasons"])
+
+
 def test_product_history_escapes_consultancy_flag():
     c = _mk("CAND_0000008", "Software Engineer", "Infosys", industry="IT Services")
     c["career_history"].append({

@@ -121,6 +121,14 @@ def _stopped_coding(c: Dict[str, Any]):
     for r in career(c):
         if not r.get("is_current"):
             continue
+        # Hands-on ML titles (Lead AI Engineer, Staff MLE, ...) are exempt: the
+        # JD's disqualifier targets people who LEFT engineering for
+        # architecture/tech-lead roles, not IC-leadership ML roles. The audit
+        # found a referee-tier-5 "Lead AI Engineer @ Sarvam AI" (owned search
+        # end-to-end) buried by this flag purely because his description used
+        # outcome language instead of coding verbs.
+        if role_match.title_category(r.get("title", "")) == "strong_ml":
+            continue
         title = (r.get("title", "") or "").lower()
         is_leadership = any(k in title for k in ("lead", "staff", "principal",
                                                  "architect", "manager", "head"))
