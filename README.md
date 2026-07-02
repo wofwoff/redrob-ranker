@@ -3,9 +3,7 @@
 Ranks the top 100 candidates from the 100K-candidate pool against the Senior AI
 Engineer job description, with a 1–2 sentence reasoning per candidate.
 
-Full rationale for every design decision is in
-[Redrob_Solution_Design_v3.md](Redrob_Solution_Design_v3.md). This README is the
-operational guide.
+This README is the operational guide.
 
 ## Reproduce the submission
 
@@ -74,29 +72,6 @@ redrob/
   features/                # role_match, must_have, experience, education,
                            # disqualifiers, geo_fit, availability, consistency, semantic
 archetypes/                # ideal.txt / anti_pattern.txt (zero-label classifier)
-eval/
-  offline_metrics.py       # NDCG@10/@50, MAP, P@10 = the exact composite
-  make_gold.py             # programmatic weak-gold labeler (hand-correct me)
-  ablation.py              # component on/off study
-  honeypot_selftest.py     # asserts Tier-A checks fire; top-100 honeypot gate
-tests/test_pipeline.py     # spec-conformance, title gate, killswitch, geo, reasoning
-```
-
-## Validate the approach (no leaderboard)
-
-```bash
-# 1. Prove the honeypot killswitch fires and the top-100 is clean (Stage-3 gate)
-python eval/honeypot_selftest.py --candidates ./candidates.jsonl --submission submission.csv
-
-# 2. Build a weak-gold set and score the exact composite against it
-python eval/make_gold.py   --candidates ./candidates.jsonl --also submission.csv
-python eval/offline_metrics.py --submission submission.csv --gold eval/gold_labels.csv
-
-# 3. Ablate each component
-python eval/ablation.py --candidates ./candidates.jsonl --gold eval/gold_labels.csv
-
-# 4. Correctness tests (runs under pytest or standalone)
-python tests/test_pipeline.py
 ```
 
 ## Optional: transformer-embedding booster
