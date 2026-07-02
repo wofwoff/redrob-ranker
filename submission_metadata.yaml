@@ -1,17 +1,19 @@
 # Redrob Hackathon — Submission Metadata
 # Mirrors the portal metadata (Stage-3 review cross-checks this file).
-# TODO: fill in the <...> team-identity fields before submitting.
 
-team_name: "<your-team-name>"
+team_name: "letsdothis"
 
 primary_contact:
-  name: "<Full Name>"
-  email: "<primary@example.com>"
-  phone: "<+91-XXXXXXXXXX>"
+  name: "Sneha Devnani"
+  email: "wafikp2003@gmail.com"
+  phone: "+91-8590401214"
 
 team_members:
-  - name: "<Full Name>"
-    email: "<email@example.com>"
+  - name: "Sneha Devnani"
+    email: "wafikp2003@gmail.com"
+    role: "Team Lead"
+  - name: "Ahmed Wafi"
+    email: "wafikp2003@gmail.com"
     role: "ML Engineer"
 
 # ============================================================================
