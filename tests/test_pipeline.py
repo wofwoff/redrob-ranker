@@ -200,6 +200,34 @@ def test_consultancy_only_disqualifier_fires():
     assert out["disqualifier_mult"] < 0.5 and out["disqualifier_reasons"]
 
 
+def test_must_have_skills_cannot_stand_in_for_real_role_evidence():
+    """A saturated skills list with ZERO real-role evidence (no retrieval/
+    ranking work in the actual job description) must not be able to drive
+    must_have_score up on its own. Found live: a synthetic Marketing Manager
+    with expert-rated FAISS/Pinecone/Embeddings/RAG skills but a marketing-only
+    job description was scoring 0.41/1.0 on must-have evidence purely from the
+    skills list -- confirmed to affect 5,484 real non-tech-titled candidates."""
+    stuffer = _mk("CAND_0000014", "Marketing Manager", "Acme Corp", industry="Media")
+    stuffer["career_history"][0]["description"] = \
+        "Led marketing campaigns and brand strategy; owned demand generation and SEO."
+    stuffer["skills"] = [{"name": n, "proficiency": "expert", "endorsements": 10,
+                          "duration_months": 24}
+                         for n in ("FAISS", "Pinecone", "Embeddings", "RAG")]
+    out = must_have.score(stuffer)
+    assert out["must_have_score"] < 0.15, \
+        f"skills alone drove must_have_score to {out['must_have_score']} with zero real-role evidence"
+
+    # a candidate with the SAME skills but genuine corroborating real-role
+    # evidence should score much higher -- corroboration must still work.
+    from redrob import description_tiers as dt
+    tier5 = next(d for d, t in dt.DESCRIPTION_TIER.items() if t == 5)
+    real = _mk("CAND_0000015", "ML Engineer", "Swiggy")
+    real["career_history"][0]["description"] = tier5
+    real["skills"] = stuffer["skills"]
+    out_real = must_have.score(real)
+    assert out_real["must_have_score"] > 0.7
+
+
 def test_stopped_coding_exempts_hands_on_ml_titles():
     """'Lead AI Engineer' / 'Staff MLE' are IC-leadership ML titles, not the
     JD's left-engineering-for-architecture archetype -- must NOT be flagged

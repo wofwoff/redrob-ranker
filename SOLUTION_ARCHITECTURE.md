@@ -109,6 +109,26 @@ _Updated 2026-07-02 (description-tier change):_
 
 Newest first. Each entry: **what changed · why · effect.**
 
+### 2026-07-02 — Closed a keyword-stuffer exploit: skills alone could inflate must-have evidence
+- **What.** Caught live in the public HuggingFace demo: a synthetic "Marketing Manager" with a
+  saturated AI skills list (FAISS, Pinecone, Embeddings, RAG, all "expert") but a marketing-only
+  job description scored **0.41/1.0** on must-have evidence and ranked above a real (if
+  consultancy-flagged) software engineer. The skills-list corroboration term (35% of must_have)
+  could max out with **zero** real-role evidence behind it — the module's own docstring says
+  skills should "corroborate" real evidence, but the math let them substitute for it. Fixed by
+  scaling the skills contribution by a `corroboration` factor tied to real-role tier evidence
+  (floor 0.15, so genuinely off-vocabulary descriptions in an open-world setting still get some
+  credit; not a hard title-based gate, so it stays general-purpose).
+- **Why.** Checked the real 100K pool before fixing anything: **5,484 non-technical-titled
+  candidates (5.5%)** had this same exploit available, several with *no* disqualifier catching
+  them either (`Operations Manager`, `Mechanical Engineer`, `Graphic Designer`, `Customer Support`
+  all showed `disqualifier_mult = 1.0`). This is exactly the JD's named trap archetype.
+- **Effect.** The exploit count dropped **5,484 → 0** pool-wide. The already-submitted top 100 was
+  unaffected either way (0 non-tech candidates in it before or after — `role_score`'s 0.38 weight
+  was already carrying that gate on its own) but the safety margin is now real math, not luck: a
+  Stage-5 interviewer constructing the same test case will now see it handled correctly. Marketing
+  Manager demo candidate: must_have 0.41 → 0.06, rank 4 → 5 (now correctly below a real engineer).
+
 ### 2026-07-02 — Finalization pass: noise-flag waiver for elite candidates + honest reasoning tails
 - **What.** Two fixes from the final audit. (1) The mild "skill used longer than the whole
   career" penalty was the *only* thing excluding seven elite, available, India-based candidates

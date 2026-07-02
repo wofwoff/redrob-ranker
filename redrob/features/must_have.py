@@ -146,8 +146,25 @@ def score(c: Dict[str, Any]) -> Dict[str, Any]:
     must_skill = min(1.0, must_skill)
     core_floor = sk["core_ml"]
 
+    # Skills CORROBORATE real-role evidence -- they must not be able to stand in
+    # for it. A self-reported skills list is exactly what a keyword-stuffer
+    # controls directly (e.g. a Marketing Manager listing "FAISS: expert,
+    # 24 months, 10 endorsements"), so its contribution is scaled down hard when
+    # tier_evidence is near zero, and unlocked as real evidence appears. Without
+    # this, a candidate with a fully saturated skills list but a career
+    # description showing NO retrieval/ranking work could still reach
+    # ~0.41 must_have_score on skills alone -- confirmed on 5,484 real
+    # non-technical-titled candidates in the pool (5.5%), several with no
+    # disqualifier catching them either. Floor 0.15 keeps a small allowance for
+    # genuinely off-vocabulary descriptions (open-world generalization); it is
+    # not a hard gate on title, so it stays general-purpose.
+    corroboration = 0.15 + 0.85 * tier_evidence
+
     # Template tier is primary (near-ground-truth work signal); skills corroborate.
-    raw = 0.55 * tier_evidence + 0.35 * must_skill + 0.10 * core_floor + prod_bonus
+    raw = (0.55 * tier_evidence
+           + 0.35 * must_skill * corroboration
+           + 0.10 * core_floor * corroboration
+           + prod_bonus)
     must = max(0.0, min(1.0, raw))
 
     return {
