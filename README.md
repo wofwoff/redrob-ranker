@@ -9,8 +9,8 @@ This README is the operational guide.
 
 ```bash
 pip install -r requirements.txt
-python rank.py --candidates ./candidates.jsonl --out ./submission.csv
-python validate_submission.py submission.csv        # from the challenge bundle
+python rank.py --candidates ./candidates.jsonl --out ./team_letsdothis.csv
+python validate_submission.py team_letsdothis.csv        # from the challenge bundle
 ```
 
 On the full 100K pool this runs in **~90 seconds** on a CPU laptop using
