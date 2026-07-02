@@ -93,7 +93,7 @@ artifact. The artifact (~154 MB) is git-ignored — regenerate it or use Git LFS
 
 A pre-configured Jupyter notebook sandbox is available at [redrob_ranker_sandbox.ipynb](redrob_ranker_sandbox.ipynb). 
 
-Once pushed to your GitHub repository, you can open and execute this sandbox directly on Google Colab using the following link:
+You can open and execute this sandbox directly on Google Colab using the following link:
 `https://colab.research.google.com/github/wofwoff/redrob-ranker/blob/main/redrob_ranker_sandbox.ipynb`
 
 This sandbox environment:
@@ -101,7 +101,6 @@ This sandbox environment:
 2. Installs the light dependencies (`numpy` and `scipy`).
 3. Runs the ranking system end-to-end on the 50-candidate sample dataset (`data/sample.jsonl`).
 4. Renders the top-ranked candidates with their reasoning.
-5. Runs the validation test suite.
 
 ## Constraints compliance
 
