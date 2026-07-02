@@ -1,4 +1,4 @@
-# Redrob Ranker — Intelligent Candidate Discovery & Ranking
+# Redrob Ranker - Intelligent Candidate Discovery & Ranking
 
 Ranks the top 100 candidates from the 100K-candidate pool against the Senior AI
 Engineer job description, with a 1–2 sentence reasoning per candidate.
@@ -14,7 +14,7 @@ python validate_submission.py submission.csv        # from the challenge bundle
 ```
 
 On the full 100K pool this runs in **~90 seconds** on a CPU laptop using
-**~1.4 GB RAM** — well inside the 5-minute / 16 GB / CPU-only / no-network budget.
+**~1.4 GB RAM** (well inside the 5-minute / 16 GB / CPU-only / no-network budget).
 The ranking step is pure NumPy/SciPy: no GPU, no network, no hosted-LLM calls.
 
 ## How it works
@@ -32,25 +32,25 @@ final_score = base_fit                     # weighted blend, title does the heav
 
 `base_fit = 0.38·role + 0.25·semantic + 0.17·must_have + 0.13·experience + 0.07·education`
 
-- **role** — title × product-vs-services company classification. Crushes the
+- **role** - title × product-vs-services company classification. Crushes the
   "Marketing Manager with 9 AI skills" keyword-stuffer trap.
-- **semantic** — a **zero-label** TF-IDF archetype classifier:
+- **semantic** - a **zero-label** TF-IDF archetype classifier:
   `sim(candidate, ideal) − sim(candidate, anti)` over `archetypes/*.txt`. Catches
   prose-buried fit ("built a recommendation system") without training labels.
-- **must_have** — the JD's non-negotiables (embeddings retrieval, vector DB,
+- **must_have** - the JD's non-negotiables (embeddings retrieval, vector DB,
   ranking eval), scored **primarily from the description-template tier**
   (`redrob/description_tiers.py`): the pool's career descriptions are 44 hand-tiered
   templates (0 = non-technical … 5 = elite retrieval/ranking at scale), so a role's
   description is a near-ground-truth JD-relevance signal. Corroborated by the skills
   list (endorsement/duration trust-weighting) and assessment scores; keyword matching
   is the fallback for off-vocabulary text.
-- **experience** — real applied-ML years derived from career history, not the raw
+- **experience** - real applied-ML years derived from career history, not the raw
   `years_of_experience` field.
-- **consistency** — two tiers: hard-impossible contradictions are a killswitch
+- **consistency** - two tiers: hard-impossible contradictions are a killswitch
   (score 0); soft anomalies are mild penalties. Killswitch checks are both
   *internal* (dates, durations, proficiency-vs-usage) and *world-knowledge*: a
   role starting ≥3 years before the employer's public founding year
-  (`lexicons.COMPANY_FOUNDED_YEAR`) — the spec's "8 years at a company founded
+  (`lexicons.COMPANY_FOUNDED_YEAR`) - the spec's "8 years at a company founded
   3 years ago" honeypot archetype, which is internally coherent and only
   catchable against real-world founding dates.
 
