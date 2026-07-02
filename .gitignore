@@ -22,3 +22,6 @@ __pycache__/
 .venv/
 venv/
 .DS_Store
+
+# Claude Code guidance (local only, not part of the submission)
+CLAUDE.md

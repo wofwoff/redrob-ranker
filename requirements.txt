@@ -1,9 +1,8 @@
 # Ranking step (rank.py) dependencies -- pure CPU, no network, no GPU.
-# These four are all that the ≤5-min ranking step needs.
+# These two are all that the ≤5-min ranking step imports (numpy + scipy.sparse
+# for the self-contained TF-IDF). No pandas, no sklearn, no model weights.
 numpy>=1.24
 scipy>=1.10
-pandas>=2.0
-PyYAML>=6.0
 
 # --- Optional booster only (NOT used by the default ranking step) ----------
 # The semantic component defaults to a self-contained TF-IDF classifier so the

@@ -35,13 +35,19 @@ That is the keyword-stuffer trap. Any ranking that resembles it is the failure m
 
 A production-style pipeline:
 
-1. **Embedding similarity** is kept as **one signal**, not the ranker. Pure cosine similarity
-   ranks keyword stuffers and inconsistent profiles highest (they contain all the right words),
-   so it must never be shipped alone. It is, however, the only good tool for plain-language
-   candidates whose fit is buried in prose.
+1. **Vector-space semantic similarity** is kept as **one signal**, not the ranker. Pure cosine
+   similarity ranks keyword stuffers and inconsistent profiles highest (they contain all the right
+   words), so it must never be shipped alone. It is, however, the only good tool for plain-language
+   candidates whose fit is buried in prose. **As shipped, this is a self-contained TF-IDF
+   archetype classifier** (numpy/scipy only — no model download, no network, fully reproducible in
+   the Stage-3 sandbox). A precomputed sentence-transformer backend (`precompute_embeddings.py`,
+   `--embeddings`) is an *optional* offline booster; the default ranking path never loads a model.
 2. **Rule-based / feature-engineered scoring** is the interpretable backbone: fast, CPU-trivial,
-   defensible, and it produces explicit feature values for the reasoning column.
-3. **Optional learning-to-rank re-rank** sharpens the order of the top slots only.
+   defensible, and it produces explicit feature values for the reasoning column. This is the
+   **core** of the shipped system.
+3. **Optional learning-to-rank re-rank** (§5) sharpens the order of the top slots only. *Not
+   shipped* — the interpretable scorer proved sufficient and is more defensible; the hooks and
+   monotonicity guard are documented in §5 for completeness.
 
 Meta-advantage worth stating at the interview: the JD describes the job as owning "ranking,
 retrieval, and matching systems," so building the solution *as* a retrieval+ranking pipeline is
@@ -360,15 +366,19 @@ There is no live feedback, so validate methodologically:
 ## 7. Compute & engineering plan
 
 - **Load:** stream the 100K JSONL (~465 MB uncompressed) — fits in 16 GB easily.
-- **Precompute (offline, allowed to exceed 5 min):** embeddings via a small local model
-  (`BAAI/bge-small-en-v1.5` or `all-MiniLM-L6-v2`); save the 100K candidate matrix **and** the
-  fixed `ideal_vector`/`anti_vector` (§3f) as numpy `.npy` / memmap.
+- **Semantic backend as shipped:** a **self-contained TF-IDF archetype classifier**
+  (`redrob/text.py`, `redrob/features/semantic.py`), built over the candidate corpus at ranking
+  time with numpy/scipy only. No precompute, no artifact, no model download — the default
+  `python rank.py …` reproduces from `candidates.jsonl` alone. This is why `requirements.txt` is
+  just numpy + scipy.
+- **Optional transformer booster (offline, allowed to exceed 5 min):** `precompute_embeddings.py`
+  embeds via a small local model (`BAAI/bge-small-en-v1.5` or `all-MiniLM-L6-v2`) and saves the
+  candidate matrix **plus** the fixed `ideal_vector`/`anti_vector` (§3f) to an `.npz`; passing
+  `--embeddings` makes `rank.py` use it instead of TF-IDF. `rank.py` still loads no model itself.
   - **Artifact size / GitHub limit:** the candidate matrix is 100K × 384 × 4 B ≈ **154 MB**, which
-    **exceeds GitHub's 100 MB per-file hard limit.** Do **not** `git add` it raw. Either (a) ship
-    only `precompute_embeddings.py` and regenerate the artifact (cleanest, keeps history light and
-    proves the pipeline), or (b) store it via **Git LFS**. Prefer (a); the spec explicitly allows
-    "a script that produces them" (spec §10.3). Consider float16 (≈77 MB) if an artifact must be
-    committed.
+    **exceeds GitHub's 100 MB per-file hard limit.** Do **not** `git add` it raw — ship only
+    `precompute_embeddings.py` and regenerate (the spec allows "a script that produces them",
+    §10.3), or use Git LFS. (The default TF-IDF path needs no artifact at all.)
 - **Ranking step (≤5 min CPU) — pure NumPy, no model, no network:** load precomputed embeddings +
   archetype vectors + raw candidates → vectorized feature computation (numpy/pandas) → matrix
   cosine (100K × 384 is trivial) → multiplicative score → apply hard-impossible killswitch to the
