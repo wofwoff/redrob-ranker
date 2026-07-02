@@ -231,7 +231,12 @@ into two weight bands:
 - `signup_date > last_active_date`
 
 *Quality-relevant flags — heavier (~0.85 each, product floored ~0.6):* not logically impossible,
-but real credibility/competence dents.
+but real credibility/competence dents. **Waived for candidates whose best role carries a tier-5
+description** (28 pool-wide): these flags are noisy generator artifacts (the skill-duration one
+hits 9.2% of the pool and disproportionately hits deep experts), and noise must not override
+near-ground-truth work evidence. Tier-A and the generator-noise band still apply to everyone.
+A/B vs the independent referee: +5 elite captures in the top 100, NDCG@50 +0.013, no regression —
+whereas *blanket* softening of these flags (tested twice) always lost.
 - single skill `duration_months > years_of_experience × 12` — not impossible (skill use can
   predate a professional career: hobby, school, open-source), but a meaningful credibility dent
   when present.

@@ -25,6 +25,7 @@ from __future__ import annotations
 from typing import Any, Dict, List
 
 from .. import lexicons as lex
+from ..description_tiers import tier_for
 from ..loader import career, parse_date, profile, signals
 
 # Margins chosen from the data audit: hard flags fire on ~45/100K candidates.
@@ -91,25 +92,38 @@ def _soft(c: Dict[str, Any]):
         mult *= 0.97; soft.append("signup after last-active")
 
     # quality-relevant band (~0.85 each, product floored at 0.6).
+    #
+    # Exception: candidates whose best role carries a TIER-5 description
+    # (28 in the whole pool) get these flags waived. The flags are noisy
+    # generator artifacts (the skill-duration one hits 9.2% of the pool and
+    # disproportionately hits deep experts, whose long skill durations are what
+    # trips it), while a tier-5 description is near-ground-truth work evidence
+    # -- noise must not override it. Tier-A hard impossibilities and the
+    # generator-noise band above still apply to everyone. A/B vs the
+    # independent referee: +5 elite captures in top-100, NDCG@50 +0.013,
+    # nothing regresses.
+    elite = any((tier_for(r.get("description", "") or "") or 0) >= 5
+                for r in career(c))
     q = 1.0
     fv = _founding_violation_years(c)
     if _FOUNDING_SOFT_YEARS <= fv < _FOUNDING_HARD_YEARS:
         q *= 0.85
         soft.append(f"role starts {fv} years before the employer was founded")
     assess = sig.get("skill_assessment_scores", {}) or {}
-    for s in c.get("skills", []) or []:
-        dur = s.get("duration_months", 0) or 0
-        if dur > (yoe * 12) + 12:
-            q *= 0.85
-            soft.append(f"'{s.get('name')}' used longer than the whole career")
-            break
-    for s in c.get("skills", []) or []:
-        name = s.get("name", "")
-        if s.get("proficiency") in ("advanced", "expert") and name in assess \
-                and assess[name] < 40:
-            q *= 0.85
-            soft.append(f"'{name}' claimed {s.get('proficiency')} but assessed {int(assess[name])}")
-            break
+    if not elite:
+        for s in c.get("skills", []) or []:
+            dur = s.get("duration_months", 0) or 0
+            if dur > (yoe * 12) + 12:
+                q *= 0.85
+                soft.append(f"'{s.get('name')}' used longer than the whole career")
+                break
+        for s in c.get("skills", []) or []:
+            name = s.get("name", "")
+            if s.get("proficiency") in ("advanced", "expert") and name in assess \
+                    and assess[name] < 40:
+                q *= 0.85
+                soft.append(f"'{name}' claimed {s.get('proficiency')} but assessed {int(assess[name])}")
+                break
     mult *= max(0.6, q)
     return mult, soft
 

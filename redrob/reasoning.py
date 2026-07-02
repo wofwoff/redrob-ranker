@@ -64,6 +64,27 @@ def _concern_clause(rec: Dict[str, Any]) -> str:
     return ""
 
 
+def _availability_facts(rec: Dict[str, Any]) -> list:
+    """Positive, checkable availability facts, each sourced from a real field.
+    Different candidates trip different facts, which keeps the reasoning varied
+    (Stage-4 'variation' check) without inventing anything."""
+    facts = []
+    npd = rec.get("notice_period_days")
+    if npd is not None and npd <= 30:
+        facts.append(f"{npd}-day notice" if npd else "no notice period")
+    rr = rec.get("recruiter_response_rate")
+    if rr is not None and rr >= 0.7:
+        facts.append(f"{rr:.0%} recruiter response rate")
+    sig = (rec.get("_raw") or {}).get("redrob_signals") or {}
+    saved = sig.get("saved_by_recruiters_30d", 0) or 0
+    if saved >= 15:
+        facts.append(f"saved by {saved} recruiters this month")
+    days = rec.get("days_since_active")
+    if days is not None and days <= 30:
+        facts.append("active on-platform this month")
+    return facts
+
+
 def compose(rec: Dict[str, Any], rank: int) -> str:
     title = rec["current_title"] or "Unlisted role"
     company = rec["current_company"] or "an unnamed employer"
@@ -74,14 +95,20 @@ def compose(rec: Dict[str, Any], rank: int) -> str:
     lead = (f"{title} at {company}, {ay:.1f}y applied ML of {ty:.0f}y total; "
             f"{strength}")
 
-    if rank <= 25 and not concern:
-        tail = "strong availability and India-based fit for the Pune/Noida role."
-        text = f"{lead}; {tail}"
-    elif concern:
+    if concern:
         connector = "but" if rank <= 40 else "though"
         text = f"{lead}, {connector} {concern}."
     else:
-        text = f"{lead}; adjacent fit included as lower-ranked filler."
+        # No concern: close with this candidate's own availability facts (they
+        # differ per candidate), plus an honest depth qualifier at the tail of
+        # the list so tone matches rank.
+        facts = _availability_facts(rec)
+        avail = " and ".join(facts[:2]) if facts else "reachable and India-based"
+        if rank > 50 and ay < 5:
+            text = (f"{lead}; {avail}, though applied-ML depth is lighter than "
+                    f"the JD's 4–5y target.")
+        else:
+            text = f"{lead}; {avail}."
 
     # single line, collapse whitespace; csv.writer handles quoting/escaping.
     return " ".join(text.split())

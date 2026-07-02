@@ -109,6 +109,23 @@ _Updated 2026-07-02 (description-tier change):_
 
 Newest first. Each entry: **what changed · why · effect.**
 
+### 2026-07-02 — Finalization pass: noise-flag waiver for elite candidates + honest reasoning tails
+- **What.** Two fixes from the final audit. (1) The mild "skill used longer than the whole
+  career" penalty was the *only* thing excluding seven elite, available, India-based candidates
+  (Senior AI Engineer @ Apple, Lead AI Engineer @ Sarvam AI, …) from the top 100 — that flag is
+  now waived for candidates whose best role carries a tier-5 description (28 people pool-wide).
+  Hard impossibility checks still apply to everyone. (2) Ranks 50–100 all ended with the same
+  canned sentence ("adjacent fit included as lower-ranked filler") — reasoning tails are now
+  built from each candidate's own availability facts (notice period, response rate, recruiter
+  saves), with an honest depth qualifier at the tail of the list.
+- **Why.** (1) The flag is a noisy data artifact (hits 9.2% of the pool, disproportionately deep
+  experts) and noise must not override near-ground-truth work evidence; *blanket* softening was
+  tested twice and always lost — only the tier-conditioned waiver wins. (2) The evaluation
+  explicitly penalizes templated reasoning; the repeated phrase was also factually wrong for
+  genuine ML engineers.
+- **Effect.** Referee composite 0.746 → 0.750, elite (tier-5) captures in top 100: 56 → 61,
+  NDCG@50 +0.013, nothing regressed. Reasoning now varies naturally and matches rank tone.
+
 ### 2026-07-02 — Description-template tier as the primary must-have signal
 - **What.** Discovered the pool's 300K job descriptions are only 44 fixed templates, hand-tiered
   by the author. Added `redrob/description_tiers.py` (exact-match tier 0–5 for all 44) and made it

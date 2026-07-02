@@ -139,6 +139,32 @@ def test_consistency_killswitch_zeroes_impossible():
     assert out["consistency_factor"] == 0.0 and out["hard_flags"]
 
 
+def test_tier5_waives_noisy_soft_flags_only():
+    """A tier-5-evidence candidate keeps full consistency despite the noisy
+    skill-duration flag; the same flag still dents a tier-2 candidate; and
+    Tier-A hard impossibilities kill BOTH regardless of tier."""
+    from redrob import description_tiers as dt
+    tier5 = next(d for d, t in dt.DESCRIPTION_TIER.items() if t == 5)
+    tier2 = next(d for d, t in dt.DESCRIPTION_TIER.items() if t == 2)
+    long_skill = [{"name": "FAISS", "proficiency": "expert",
+                   "duration_months": 200, "endorsements": 9}]  # > 6y*12+12
+
+    elite = _mk("CAND_0000030", "Senior AI Engineer", "Netflix")
+    elite["career_history"][0]["description"] = tier5
+    elite["skills"] = list(long_skill)
+    assert consistency.score(elite)["consistency_factor"] == 1.0
+
+    generic = _mk("CAND_0000031", "ML Engineer", "Swiggy")
+    generic["career_history"][0]["description"] = tier2
+    generic["skills"] = list(long_skill)
+    assert consistency.score(generic)["consistency_factor"] < 1.0
+
+    # hard flags are NOT waived for elite candidates
+    elite["skills"].append({"name": "RAG", "proficiency": "expert",
+                            "duration_months": 0, "endorsements": 1})
+    assert consistency.score(elite)["consistency_factor"] == 0.0
+
+
 def test_founding_year_killswitch():
     """A role starting >= 3y before the employer's public founding year is the
     spec's first honeypot archetype -> killswitch. 1y slack is noise -> clean."""
