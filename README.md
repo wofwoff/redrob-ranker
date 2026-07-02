@@ -114,6 +114,20 @@ python rank.py --candidates ./candidates.jsonl --out ./submission.csv --embeddin
 `rank.py` still never touches the network; it only *reads* the precomputed
 artifact. The artifact (~154 MB) is git-ignored — regenerate it or use Git LFS.
 
+## Google Colab Sandbox
+
+A pre-configured Jupyter notebook sandbox is available at [redrob_ranker_sandbox.ipynb](redrob_ranker_sandbox.ipynb). 
+
+Once pushed to your GitHub repository, you can open and execute this sandbox directly on Google Colab using the following link:
+`https://colab.research.google.com/github/wofwoff/redrob-ranker/blob/main/redrob_ranker_sandbox.ipynb`
+
+This sandbox environment:
+1. Clones the repository.
+2. Installs the light dependencies (`numpy` and `scipy`).
+3. Runs the ranking system end-to-end on the 50-candidate sample dataset (`data/sample.jsonl`).
+4. Renders the top-ranked candidates with their reasoning.
+5. Runs the validation test suite.
+
 ## Constraints compliance
 
 | Constraint | Limit | This ranker |
