@@ -20,7 +20,7 @@ team_members:
 # Code and reproducibility
 # ============================================================================
 github_repo: "https://github.com/wofwoff/redrob-ranker"
-sandbox_link: "<https://huggingface.co/spaces/USERNAME/redrob-ranker>"
+sandbox_link: "https://huggingface.co/spaces/woffwoff/redrob-ranker"
 reproduce_command: "python rank.py --candidates ./candidates.jsonl --out ./submission.csv"
 
 # ============================================================================
